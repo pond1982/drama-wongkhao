@@ -39,8 +39,32 @@ Near the top of the script in `index.html`:
 
 Keep each summary factual and give it a source link. The jokes live in the tier labels and household results, which are about the players' own families, not about the court.
 
+## Google Analytics
+
+The page uses GA4 property `G-HVSY0T7752` (`GA_ID` near the top of the script; set it to `''` to turn analytics off).
+
+- GA loads only after the player taps "ตกลง" in the cookie box, which appears under the start button (and on the result screen) until they choose. "ไม่เป็นไร" means GA never loads. The two buttons look the same on purpose. The choice is saved in the player's browser, and they can change it any time with the "ตั้งค่าคุกกี้" link at the bottom of the first screen and the result screen. Turning it off also deletes the `_ga` cookies.
+- Google signals and ad personalization are off, and ad storage is denied.
+- GA doesn't run when the page is opened as a local file. It does run on `localhost`, so local testing counts as real visits unless you filter it out.
+
+Events sent (after consent only):
+
+| Event | When | Parameters |
+|---|---|---|
+| `page_view` | GA loads | (automatic) |
+| `game_start` | Start button, or restart | `start_type`: `new`, `resume`, `restart` |
+| `rank_ruling` | Each tier tap | `ruling_id`, `drama_level` (4 = ทะเลาะ … 0 = เงียบ), `tier_name`, `step` (1–19) |
+| `undo_rank` | Undo | `ruling_id`, `drama_level` (the level that was undone) |
+| `move_ruling` | Moving a ruling to another tier on the board | `ruling_id`, `from_level`, `drama_level` (new level) |
+| `game_complete` | Last ruling placed | `persona` |
+| `share` | Native share, image download, Facebook/LINE/X link, copy link | `method`, `content_type` (`image` or `link`) |
+
+GA's enhanced measurement also records clicks on the source links as outbound `click` events.
+
+To use the custom parameters in GA reports, register them once in GA → Admin → Custom definitions → Create custom dimension (scope: Event): `ruling_id`, `drama_level`, `tier_name`, `step`, `from_level`, `start_type`, `persona`. `method` and `content_type` are standard for `share`. To see which rulings players rank as most dramatic, go to Explore, use `rank_ruling` events, and break them down by `ruling_id` and `drama_level`.
+
 ## Notes
 
-- Progress and rankings are stored only in the player's own browser (localStorage). Nothing is sent to a server.
+- Progress and rankings are stored in the player's own browser (localStorage). If the player agrees to cookies, the events above are also sent to Google Analytics. Names and contact details are never collected.
 - The ruling data is current to 28 Sep 2026 (28 ก.ย. 2569).
 - The illustrations are AI-generated fictional characters, and the page says so.

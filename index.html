@@ -175,6 +175,13 @@ dialog::backdrop{background:rgba(5,12,15,.72)}
 .fine{margin:0;font-size:13px;color:var(--ink-2);line-height:1.6}
 .toast{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:80;background:var(--ink);color:var(--card-ink);padding:10px 16px;border-radius:999px;font-size:14px;font-weight:700;width:max-content;max-width:calc(100vw - 32px);box-shadow:0 8px 24px rgba(0,0,0,.35);text-align:center;pointer-events:none}
 
+/* ---------- analytics consent ---------- */
+.consent{display:grid;gap:10px;background:var(--bg-2);border:1px solid var(--line);border-radius:16px;padding:14px}
+.consent p{margin:0;font-size:14px;line-height:1.6;color:var(--ink-2)}
+.consent-actions{display:flex;gap:8px}
+.consent-actions .btn{flex:1}
+.linkish{border:0;background:none;padding:6px 0;font-size:inherit;color:var(--sun);font-weight:600;text-decoration:underline;cursor:pointer}
+
 @media (max-height:720px){
   .tier-btn{min-height:52px}
   .tier-btn img{width:44px;height:44px}
@@ -209,6 +216,16 @@ dialog::backdrop{background:rgba(5,12,15,.72)}
       </button>
       <button type="button" id="restartBtn" class="btn" hidden>เริ่มใหม่ตั้งแต่คดีแรก</button>
     </div>
+    <!-- Analytics consent box. The script moves it between this slot and #consentSlotResult. -->
+    <div id="consentSlotIntro" class="consent-slot" hidden>
+      <div id="consent" class="consent" role="region" aria-label="การใช้คุกกี้">
+        <p>เว็บนี้ขอใช้คุกกี้ของ Google Analytics เพื่อนับจำนวนผู้เล่น ดูภาพรวมว่าแต่ละคดีถูกจัดไว้ระดับไหน และมีการแชร์ผลหรือเปิดลิงก์แหล่งข่าวมากแค่ไหน ไม่เก็บชื่อหรือข้อมูลติดต่อของคุณ เปลี่ยนใจได้ทุกเมื่อที่ “ตั้งค่าคุกกี้” ท้ายหน้า</p>
+        <div class="consent-actions">
+          <button type="button" id="consentNo" class="btn">ไม่เป็นไร</button>
+          <button type="button" id="consentYes" class="btn">ตกลง</button>
+        </div>
+      </div>
+    </div>
     <ol class="steps">
       <li>อ่านสรุปคดี</li>
       <li>แตะระดับดราม่า</li>
@@ -218,8 +235,10 @@ dialog::backdrop{background:rgba(5,12,15,.72)}
       <summary>เกี่ยวกับเกมนี้</summary>
       <p>ดราม่าวงข้าวให้คุณจัดอันดับจากประสบการณ์ในบ้านตัวเอง ว่าข่าวแต่ละคดีทำให้คนในบ้านคุยหรือเถียงกันมากแค่ไหน เกมนี้ไม่ได้ให้คะแนนความถูกผิดของคำวินิจฉัย และไม่ได้วิจารณ์ศาลหรือตุลาการ</p>
       <p>สรุปคดีเรียบเรียงจากข่าวและเอกสารที่เผยแพร่ต่อสาธารณะ ณ 28 ก.ย. 2569 คัดมาบางคดี ไม่ใช่ทุกคดี ทุกการ์ดมีลิงก์ไปยังแหล่งข่าว</p>
-      <p>ภาพประกอบสร้างด้วย AI เป็นตัวละครสมมติ การจัดอันดับเก็บไว้ในเครื่องของคุณเท่านั้น เว็บนี้ไม่เก็บข้อมูลส่วนตัว</p>
+      <p>ภาพประกอบสร้างด้วย AI เป็นตัวละครสมมติ ผลการจัดอันดับเก็บไว้ในเครื่องของคุณ เว็บนี้ไม่เก็บชื่อหรือข้อมูลติดต่อ</p>
+      <p id="consentNote" hidden>ถ้าคุณกด “ตกลง” เรื่องคุกกี้ เว็บจะใช้ Google Analytics นับจำนวนผู้เล่น ดูภาพรวมว่าแต่ละคดีถูกจัดไว้ระดับไหน และมีการแชร์ผลหรือเปิดลิงก์แหล่งข่าวมากแค่ไหน เปลี่ยนการตั้งค่าได้ทุกเมื่อที่ “ตั้งค่าคุกกี้” ท้ายหน้า</p>
     </details>
+    <p class="fine" data-consent-line hidden>Google Analytics: <span class="consent-state"></span> · <button type="button" class="linkish" data-consent-open>ตั้งค่าคุกกี้</button></p>
   </div>
 </section>
 
@@ -296,7 +315,9 @@ dialog::backdrop{background:rgba(5,12,15,.72)}
       <button type="button" id="againBtn" class="btn">เล่นใหม่</button>
       <button type="button" id="homeBtn" class="btn">กลับหน้าแรก</button>
     </div>
+    <div id="consentSlotResult" class="consent-slot" hidden></div>
     <p class="fine">อันดับในเกมนี้มาจากความรู้สึกของผู้เล่นแต่ละคน ไม่ใช่การประเมินหรือวิจารณ์คำวินิจฉัย ข้อมูลคดี ณ 28 ก.ย. 2569 ภาพประกอบสร้างด้วย AI</p>
+    <p class="fine" data-consent-line hidden>Google Analytics: <span class="consent-state"></span> · <button type="button" class="linkish" data-consent-open>ตั้งค่าคุกกี้</button></p>
   </div>
 </section>
 
@@ -353,6 +374,9 @@ dialog::backdrop{background:rgba(5,12,15,.72)}
   const SHARE_TEXT = 'คดีไหนทำวงข้าวบ้านคุณดราม่าที่สุด? มาจัดอันดับกัน';
   const FILE_NAME = 'drama-wongkhao.png';
   const DATA_DATE = '28 ก.ย. 2569';
+
+  // Google Analytics 4. It loads only after the player taps "ตกลง" on the cookie bar. Set to '' to turn it off.
+  const GA_ID = 'G-HVSY0T7752';
 
   // Art made with Higgsfield (Recraft V4.1). get-art.sh copies it into ./assets and flips SELF_HOSTED to true.
   const SELF_HOSTED = false;
@@ -530,10 +554,80 @@ dialog::backdrop{background:rgba(5,12,15,.72)}
     announce(msg);
   }
 
+  // ---------- analytics (only after consent) ----------
+  const CONSENT_KEY = 'dramawongkhao:consent';
+  const GA_ON = !!GA_ID && /^https?:$/.test(location.protocol);
+  let consent = null; // 'yes' | 'no' | null = not asked yet
+  let consentReopened = false;
+  let gaLoaded = false;
+  try {
+    const c = localStorage.getItem(CONSENT_KEY);
+    if (c === 'yes' || c === 'no') consent = c;
+  } catch (e) { /* storage unavailable: ask each visit */ }
+
+  function loadGA() {
+    window['ga-disable-' + GA_ID] = false;
+    if (gaLoaded) { window.gtag('consent', 'update', { analytics_storage: 'granted' }); return; }
+    gaLoaded = true;
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { window.dataLayer.push(arguments); };
+    window.gtag('consent', 'default', { analytics_storage: 'granted', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
+    window.gtag('js', new Date());
+    window.gtag('config', GA_ID, { allow_google_signals: false, allow_ad_personalization_signals: false });
+    const s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(GA_ID);
+    document.head.append(s);
+  }
+  function stopGA() {
+    window['ga-disable-' + GA_ID] = true;
+    if (gaLoaded) window.gtag('consent', 'update', { analytics_storage: 'denied' });
+    // Remove _ga cookies from this host and each parent domain the browser allows.
+    const parts = location.hostname.split('.');
+    document.cookie.split(';').map(c => c.split('=')[0].trim())
+      .filter(n => n === '_ga' || n.indexOf('_ga_') === 0)
+      .forEach(n => {
+        document.cookie = `${n}=; Max-Age=0; path=/`;
+        for (let i = 0; i < parts.length - 1; i++) document.cookie = `${n}=; Max-Age=0; path=/; domain=${parts.slice(i).join('.')}`;
+      });
+  }
+  function setConsent(v) {
+    const fromSettings = consentReopened;
+    const hadFocus = $('#consent').contains(document.activeElement);
+    consent = v;
+    consentReopened = false;
+    try { localStorage.setItem(CONSENT_KEY, v); } catch (e) { /* remembered for this visit only */ }
+    if (v === 'yes') loadGA(); else stopGA();
+    renderConsent();
+    if (hadFocus) {
+      const to = !fromSettings && state.phase === 'intro' ? $('#startBtn') : $(`#${state.phase} [data-consent-open]`);
+      if (to) to.focus({ preventScroll: true });
+    }
+    announce(v === 'yes' ? 'เปิด Google Analytics แล้ว' : 'ปิด Google Analytics แล้ว');
+  }
+  // The box shows on the intro or result screen while no choice is stored, or after "ตั้งค่าคุกกี้" until the screen changes.
+  function renderConsent() {
+    if (!GA_ON) return;
+    const ask = (consent === null || consentReopened) && state.phase !== 'play';
+    const slot = state.phase === 'result' ? $('#consentSlotResult') : $('#consentSlotIntro');
+    if (ask && $('#consent').parentNode !== slot) slot.append($('#consent'));
+    document.querySelectorAll('.consent-slot').forEach(s => { s.hidden = !(ask && s === slot); });
+    $('#consentNote').hidden = false;
+    const label = consent === 'yes' ? 'เปิดอยู่' : consent === 'no' ? 'ปิดอยู่' : 'ยังไม่ได้เลือก';
+    document.querySelectorAll('[data-consent-line]').forEach(p => { p.hidden = false; });
+    document.querySelectorAll('.consent-state').forEach(s => { s.textContent = label; });
+  }
+  function track(name, params) {
+    if (consent !== 'yes' || !gaLoaded) return;
+    try { window.gtag('event', name, params || {}); } catch (e) { /* ignore */ }
+  }
+
   // ---------- screens ----------
   function show(phase) {
     state.phase = phase;
     ['intro', 'play', 'result'].forEach(p => { $('#' + p).hidden = p !== phase; });
+    consentReopened = false;
+    renderConsent();
     closeAllDialogs();
     if (phase === 'intro') renderIntro();
     if (phase === 'play') renderPlay(true);
@@ -618,8 +712,10 @@ dialog::backdrop{background:rgba(5,12,15,.72)}
       state.history.push(id);
       save();
       busy = false;
+      track('rank_ruling', { ruling_id: id, drama_level: TIERS[i].heat, tier_name: TIERS[i].key, step: state.history.length });
       if (navigator.vibrate) { try { navigator.vibrate(12); } catch (e) { /* ignore */ } }
       if (!current()) {
+        track('game_complete', { persona: persona().name });
         show('result');
         announce(`ครบ ${TOTAL} คดีแล้ว`);
         return;
@@ -647,8 +743,10 @@ dialog::backdrop{background:rgba(5,12,15,.72)}
   function undo() {
     if (busy || !state.history.length) return;
     const id = state.history.pop();
+    const t = state.placed[id];
     delete state.placed[id];
     save();
+    track('undo_rank', { ruling_id: id, drama_level: TIERS[t].heat });
     renderPlay(true);
     toast('ย้อนกลับแล้ว');
   }
@@ -716,9 +814,12 @@ dialog::backdrop{background:rgba(5,12,15,.72)}
   }
   function applyMove(i) {
     if (!moving) return;
-    state.placed[moving] = i;
+    const id = moving;
+    const from = state.placed[id];
+    state.placed[id] = i;
     save();
-    const name = BY_ID[moving].c;
+    if (from !== i) track('move_ruling', { ruling_id: id, from_level: TIERS[from].heat, drama_level: TIERS[i].heat });
+    const name = BY_ID[id].c;
     moving = null;
     closeDialog($('#moveDlg'));
     invalidateShare();
@@ -1021,6 +1122,7 @@ dialog::backdrop{background:rgba(5,12,15,.72)}
   async function nativeShare() {
     try {
       await navigator.share({ files: [shareFile()], title: 'ดราม่าวงข้าว', text: `${SHARE_TEXT} ${SITE_URL}` });
+      track('share', { method: 'native', content_type: 'image' });
       return 'done';
     } catch (err) {
       return err && err.name === 'AbortError' ? 'cancelled' : 'failed';
@@ -1034,6 +1136,7 @@ dialog::backdrop{background:rgba(5,12,15,.72)}
     document.body.append(a);
     a.click();
     a.remove();
+    track('share', { method: 'download', content_type: 'image' });
     toast('กำลังบันทึกรูป');
   }
   function openPreview() {
@@ -1047,6 +1150,9 @@ dialog::backdrop{background:rgba(5,12,15,.72)}
   $('#shFb').href = `https://www.facebook.com/sharer/sharer.php?u=${u}`;
   $('#shLine').href = `https://social-plugins.line.me/lineit/share?url=${u}`;
   $('#shX').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(SHARE_TEXT)}&url=${u}`;
+  [['#shFb', 'facebook'], ['#shLine', 'line'], ['#shX', 'x']].forEach(([sel, method]) => {
+    $(sel).addEventListener('click', () => track('share', { method, content_type: 'link' }));
+  });
   async function copyText(text) {
     try { await navigator.clipboard.writeText(text); return true; } catch (e) { /* fall through */ }
     try {
@@ -1064,7 +1170,11 @@ dialog::backdrop{background:rgba(5,12,15,.72)}
   }
 
   // ---------- events ----------
-  $('#startBtn').addEventListener('click', () => show(placedCount() >= TOTAL ? 'result' : 'play'));
+  $('#startBtn').addEventListener('click', () => {
+    const n = placedCount();
+    if (n < TOTAL) track('game_start', { start_type: n ? 'resume' : 'new' });
+    show(n >= TOTAL ? 'result' : 'play');
+  });
   let armed = null;
   function confirmTwice(btn, label, confirmLabel, action) {
     if (armed !== btn) {
@@ -1083,8 +1193,13 @@ dialog::backdrop{background:rgba(5,12,15,.72)}
     save();
     invalidateShare();
   }
-  $('#restartBtn').addEventListener('click', e => confirmTwice(e.currentTarget, 'เริ่มใหม่ตั้งแต่คดีแรก', 'แตะอีกครั้งเพื่อล้างผลเดิม', () => { resetAll(); show('play'); }));
-  $('#againBtn').addEventListener('click', e => confirmTwice(e.currentTarget, 'เล่นใหม่', 'แตะอีกครั้งเพื่อล้างผลเดิม', () => { resetAll(); show('play'); }));
+  function restart() {
+    resetAll();
+    track('game_start', { start_type: 'restart' });
+    show('play');
+  }
+  $('#restartBtn').addEventListener('click', e => confirmTwice(e.currentTarget, 'เริ่มใหม่ตั้งแต่คดีแรก', 'แตะอีกครั้งเพื่อล้างผลเดิม', restart));
+  $('#againBtn').addEventListener('click', e => confirmTwice(e.currentTarget, 'เล่นใหม่', 'แตะอีกครั้งเพื่อล้างผลเดิม', restart));
   $('#homeBtn').addEventListener('click', () => show('intro'));
   $('#undoBtn').addEventListener('click', undo);
   $('#boardBtn').addEventListener('click', () => {
@@ -1127,8 +1242,17 @@ dialog::backdrop{background:rgba(5,12,15,.72)}
   });
   $('#pvSave').addEventListener('click', downloadImage);
   $('#copyLink').addEventListener('click', async () => {
-    toast((await copyText(SITE_URL)) ? 'คัดลอกลิงก์แล้ว' : SITE_URL);
+    const ok = await copyText(SITE_URL);
+    if (ok) track('share', { method: 'copy_link', content_type: 'link' });
+    toast(ok ? 'คัดลอกลิงก์แล้ว' : SITE_URL);
   });
+  $('#consentYes').addEventListener('click', () => setConsent('yes'));
+  $('#consentNo').addEventListener('click', () => setConsent('no'));
+  document.querySelectorAll('[data-consent-open]').forEach(b => b.addEventListener('click', () => {
+    consentReopened = true;
+    renderConsent();
+    $('#consentNo').focus();
+  }));
 
   // ---------- boot ----------
   $('#heroImg').src = ART.hero;
@@ -1136,6 +1260,7 @@ dialog::backdrop{background:rgba(5,12,15,.72)}
   ['t1', 't2', 't3', 't4', 't5'].forEach(k => strip.append(artImg(k, 58)));
   buildTierButtons();
   load();
+  if (GA_ON && consent === 'yes') loadGA();
   show(placedCount() >= TOTAL ? 'result' : 'intro');
 })();
 </script>
